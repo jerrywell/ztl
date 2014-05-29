@@ -264,6 +264,7 @@ public class ConfigHelper {
 		if (isValidOpenOnce(_openonce)) {
 			final String driverName = _driverSetting.get(browser.getBrowserName());
 			_cacheMap.remove(driverName);
+			ConnectionManager.getInstance().releaseRemote(browser.getBrowserName());
 			System.out.println("Reopen Browser: " + browser.getBrowserName());
 		}
 	}

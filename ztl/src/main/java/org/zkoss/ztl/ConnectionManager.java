@@ -20,7 +20,11 @@ public class ConnectionManager {
 		
 	private static ConnectionManager instance;
 	private static ConfigHelper configHelper;
-	private static double random = Math.random();
+	private static long uuid = 0L;
+	public void printUUID(long uuid) {
+		this.uuid = uuid;
+		
+	}
 	private static int reducePeriod;
 	
 	// milliseconds
@@ -78,7 +82,9 @@ public class ConnectionManager {
 		} while(true);
 	}
 	
-	public void releaseRemote(String remote) throws IOException {
+	public void releaseRemote(String remote) {
+		System.out.println("log release remote...");
+		
 		waitingPeriod.remove();
 		
 		if(openedFileMap.containsKey(remote)) {
@@ -112,11 +118,14 @@ public class ConnectionManager {
 				
 				if(lock != null) {
 					openedFileMap.put(browserKey, new LockEntity(file, lock, remote));
-					// System.out.println(random + ":get connection... with " + remote);
 					return remote;
 				}
 			} catch (Exception e) {
-				System.out.println(random + ":can't create or open a file to write");
+				System.out.println(uuid + ":can't create or open a file to write - " + remote + ":" + e.getMessage());
+				for (LockEntity entity : openedFileMap.values()) {
+					System.out.println("remaining entity:" + entity.remote);
+				}
+				e.printStackTrace();
 			} finally {
 				if(lock == null)
 					try {
@@ -150,69 +159,69 @@ public class ConnectionManager {
 	}
 	
 //	@Test
-	public void testConnection() throws InterruptedException {
-		Map<String, List<String>> map = new HashMap<String, List<String>>();
-		map.put("ie8", Arrays.asList("10.1.3.1", "10.1.3.2"));
-		map.put("ie9", Arrays.asList("10.1.3.7", "10.1.3.8"));
-		
-		ExecutorService executor = Executors.newCachedThreadPool();
-		executor.execute(new TestThread("ie8", map));
-		executor.execute(new TestThread("ie9", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
+//	public void testConnection() throws InterruptedException {
+//		Map<String, List<String>> map = new HashMap<String, List<String>>();
+//		map.put("ie8", Arrays.asList("10.1.3.1", "10.1.3.2"));
+//		map.put("ie9", Arrays.asList("10.1.3.7", "10.1.3.8"));
+//		
+//		ExecutorService executor = Executors.newCachedThreadPool();
 //		executor.execute(new TestThread("ie8", map));
 //		executor.execute(new TestThread("ie9", map));
-//		executor.execute(new TestThread("ie9", map));
-//		executor.execute(new TestThread("ie9", map));
-//		executor.execute(new TestThread("ie9", map));
-//		executor.execute(new TestThread("ie9", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
-//		executor.execute(new TestThread("ie8", map));
-		
-		executor.shutdown();
-		executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
-	}
-	
-	class TestThread implements Runnable {
-
-		private String name;
-		private Map<String, List<String>> remoteMap;
-		
-		public TestThread(String name, Map<String, List<String>> remoteMap) {
-			this.name = name;
-			this.remoteMap = remoteMap;
-		}
-		
-		@Override
-		public void run() {
-			ConnectionManager manager = ConnectionManager.getInstance();
-			String remote = manager.getAvailableRemote(name, remoteMap);
-			
-			try {
-				Thread.sleep(10000);
-				manager.releaseRemote(remote);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-			
-		}
-		
-	}
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie9", map));
+////		executor.execute(new TestThread("ie9", map));
+////		executor.execute(new TestThread("ie9", map));
+////		executor.execute(new TestThread("ie9", map));
+////		executor.execute(new TestThread("ie9", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+////		executor.execute(new TestThread("ie8", map));
+//		
+//		executor.shutdown();
+//		executor.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+//	}
+//	
+//	class TestThread implements Runnable {
+//
+//		private String name;
+//		private Map<String, List<String>> remoteMap;
+//		
+//		public TestThread(String name, Map<String, List<String>> remoteMap) {
+//			this.name = name;
+//			this.remoteMap = remoteMap;
+//		}
+//		
+//		@Override
+//		public void run() {
+//			ConnectionManager manager = ConnectionManager.getInstance();
+//			String remote = manager.getAvailableRemote(name, remoteMap);
+//			
+//			try {
+//				Thread.sleep(10000);
+//				manager.releaseRemote(remote);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//			
+//			
+//		}
+//		
+//	}
 }
